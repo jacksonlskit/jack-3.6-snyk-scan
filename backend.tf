@@ -1,9 +1,9 @@
-# Comment out the below if you are working on local
-
 terraform {
+  required_version = ">= 1.5.0"
+
   backend "s3" {
     bucket = "sctp-tfstate-ce13"
-    key    = "jack/package-vul-scan-jack.tfstate" #Change the value of this to <your suggested name>.tfstate for  example
+    key    = "jack/package-vul-scan-jack.tfstate"
     region = "us-east-1"
   }
 }
