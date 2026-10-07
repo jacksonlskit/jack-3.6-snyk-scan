@@ -16,21 +16,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Fetch repository code onto the runner
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2. Install Terraform CLI
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      # 1. Initialize working directory & remote state
+      # 3. Initialize working directory & remote backend
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -input=false
 
-      # 2. Syntax validation
+      # 4. Syntax validation
       - name: Terraform Validate
         run: terraform validate -no-color
 
-      # 3. Create execution plan
+      # 5. Generate saved execution plan
       - name: Terraform Plan
-        run: terraform plan -no-color -out=tfplan
+        run: terraform plan -no-color -input=false -out=tfplan
 
-      # 4. Apply changes automatically
+      # 6. Apply the exact saved plan non-interactively
       - name: Terraform Apply
-        run: terraform apply -auto-approve -input=false tfplan
+        run: terraform apply -input=false tfplan
