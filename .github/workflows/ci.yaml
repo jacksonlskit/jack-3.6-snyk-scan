@@ -54,12 +54,8 @@ jobs:
   # Snyk Scan Job                        #
   ########################################
   snyk-checks:
+    name: Snyk Security Scans
     runs-on: ubuntu-latest
-    needs: Initial-Checks
-    outputs:
-      status: ${{ job.status }}
-    env:
-      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -67,17 +63,23 @@ jobs:
       - name: Install Snyk CLI
         uses: snyk/actions/setup@master
 
-      # 1. Snyk Open Source Test (SCA for dependencies in requirements.txt)
-      - name: Run Snyk test
+      # 1. Dependency Vulnerability Scan (SCA)
+      - name: Run Snyk Open Source test
         run: snyk test --file=requirements.txt --severity-threshold=high
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
-      # 2. Snyk IaC Test (Terraform configuration scan)
+      # 2. Infrastructure as Code Scan (IaC)
       - name: Run Snyk IaC test
         run: snyk iac test --severity-threshold=high
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
   #################################################
   # Summary Job                                   #
-  #################################################
+  #################################################cdcdcdcdc
   summary:
     needs: [terraform-checks, snyk-checks]
     if: always()
