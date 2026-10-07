@@ -66,11 +66,11 @@ jobs:
 
       # 1. Snyk Open Source Test (SCA for dependencies in requirements.txt)
       - name: Run Snyk test
-        run: snyk test --file=requirements.txt
+        run: snyk test --file=requirements.txt --severity-threshold=high
 
       # 2. Snyk IaC Test (Terraform configuration scan)
       - name: Run Snyk IaC test
-        run: snyk iac test
+        run: snyk iac test --severity-threshold=high
 
   #################################################
   # Summary Job                                   #
