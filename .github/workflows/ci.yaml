@@ -20,6 +20,9 @@ jobs:
     outputs:
       status: ${{ job.status }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
@@ -31,7 +34,7 @@ jobs:
         id: validate
         run: terraform validate -no-color
 
-      - uses: terraform-linters/setup-tflint@v3
+      - uses: terraform-linters/setup-tflint@v4
         with:
           tflint_version: latest
 
@@ -55,20 +58,19 @@ jobs:
     env:
       SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Install Snyk CLI
         uses: snyk/actions/setup@master
 
-      # 1. Snyk Open Source Test (SCA for dependencies)
+      # 1. Snyk Open Source Test (SCA for dependencies in requirements.txt)
       - name: Run Snyk test
-        run: snyk test
+        run: snyk test --file=requirements.txt
 
       # 2. Snyk IaC Test (Terraform configuration scan)
       - name: Run Snyk IaC test
         run: snyk iac test
-
-      # 3. Snyk Container Test (Replace <image-name> with your target image name or tag)
-      - name: Run Snyk Container test
-        run: snyk container test <image-name>
 
   #################################################
   # Summary Job                                   #
