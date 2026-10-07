@@ -10,7 +10,6 @@ on:
 
 jobs:
   deploy-infra:
-    # Runs only if the PR was actually merged, or manually triggered
     if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged == true)
     name: Terraform Apply
     runs-on: ubuntu-latest
@@ -20,29 +19,30 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-        - name: Configure AWS Credentials
+      # 2. Authenticate to AWS
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      # 2. Install Terraform CLI
+      # 3. Install Terraform CLI
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      # 3. Initialize working directory & remote backend
+      # 4. Initialize working directory & remote backend
       - name: Terraform Init
-        run: terraform init -input=false -upgrade
+        run: terraform init -input=false
 
-      # 4. Syntax validationterraform validate -no-color
+      # 5. Syntax validation
       - name: Terraform Validate
         run: terraform validate -no-color
 
-      # 5. Generate saved execution plan
+      # 6. Generate saved execution plan
       - name: Terraform Plan
         run: terraform plan -no-color -input=false -out=tfplan
 
-      # 6. Apply the exact saved plan non-interactively
+      # 7. Apply the exact saved plan non-interactively
       - name: Terraform Apply
         run: terraform apply -input=false tfplan
