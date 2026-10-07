@@ -1,0 +1,36 @@
+name: Terraform CD
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy-infra:
+    # Runs only if the PR was actually merged, or manually triggered
+    if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged == true)
+    name: Terraform Apply
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      # 1. Initialize working directory & remote state
+      - name: Terraform Init
+        run: terraform init
+
+      # 2. Syntax validation
+      - name: Terraform Validate
+        run: terraform validate -no-color
+
+      # 3. Create execution plan
+      - name: Terraform Plan
+        run: terraform plan -no-color -out=tfplan
+
+      # 4. Apply changes automatically
+      - name: Terraform Apply
+        run: terraform apply -auto-approve -input=false tfplan
